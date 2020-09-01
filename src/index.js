@@ -51,7 +51,7 @@ class CountdownTimer {
     }, 1000);
   }
 
-  _stopTimer() {
+  stopTimer() {
     clearInterval(this.intervalId);
     console.log(this.intervalId);
   }
