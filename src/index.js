@@ -1,83 +1,67 @@
 import './styles.scss';
 
-const spanDays = document.querySelector('.value[data-value="days"]');
-const spanHours = document.querySelector('.value[data-value="hours"]');
-const spanMins = document.querySelector('.value[data-value="mins"]');
-const spanSecs = document.querySelector('.value[data-value="secs"]');
-
 class CountdownTimer {
-  constructor({
-    selector,
-    targetDate,
-    time = 0,
-    days = 0,
-    hours = 0,
-    mins = 0,
-    secs = 0,
-  }) {
-    this.selector = document.querySelector(selector);
+  constructor({ selector, targetDate }) {
+    this.selector = selector;
     this.targetDate = targetDate;
-    this.time = time;
-    this.days = days;
-    this.hours = hours;
-    this.mins = mins;
-    this.secs = secs;
-  }
-
-  leftTime() {
-    return (this.time = this.targetDate - Date.now());
-  }
-
-  leftDays() {
-    this.days = Math.floor(this.leftTime() / (1000 * 60 * 60 * 24));
-  }
-
-  leftHours() {
-    this.hours = Math.floor(
-      (this.leftTime() % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+    this.intervalId = null;
+    this.spanDays = document.querySelector(
+      `${this.selector} .value[data-value="days"]`,
     );
+    this.spanHours = document.querySelector(
+      `${this.selector} .value[data-value="hours"]`,
+    );
+    this.spanMins = document.querySelector(
+      `${this.selector} .value[data-value="mins"]`,
+    );
+    this.spanSecs = document.querySelector(
+      `${this.selector} .value[data-value="secs"]`,
+    );
+
+    this._startTimer();
   }
 
-  leftMins() {
-    this.mins = Math.floor((this.leftTime() % (1000 * 60 * 60)) / (1000 * 60));
+  _leftTime() {
+    const time = this.targetDate - Date.now();
+
+    time > 0 ? this._calculateTime(time) : this._stopTimer();
   }
 
-  leftSeconds() {
-    this.secs = Math.floor((this.leftTime() % (1000 * 60)) / 1000);
+  _calculateTime(time) {
+    const days = Math.floor(time / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((time % (1000 * 60)) / 1000);
+
+    this._updateTimeState(days, hours, mins, secs);
   }
 
-  updateTime() {
-    if (this.time >= 0) {
-      this.leftDays();
-      this.leftHours();
-      this.leftMins();
-      this.leftSeconds();
-    } else {
-      clearInterval(intervalId);
-      this.days = 0;
-      this.hours = 0;
-      this.mins = 0;
-      this.secs = 0;
-      return;
-    }
+  _updateTimeState(days, hours, mins, secs) {
+    this.spanDays.textContent = this.pad(days);
+    this.spanHours.textContent = this.pad(hours);
+    this.spanMins.textContent = this.pad(mins);
+    this.spanSecs.textContent = this.pad(secs);
+  }
+
+  _startTimer() {
+    this._leftTime();
+
+    this.intervalId = setInterval(() => {
+      this._leftTime();
+    }, 1000);
+  }
+
+  _stopTimer() {
+    clearInterval(this.intervalId);
+    console.log(this.intervalId);
+  }
+
+  pad(value) {
+    return String(value).padStart(2, 0);
   }
 }
 
 const timer = new CountdownTimer({
   selector: '#timer-1',
-  targetDate: new Date('Sep 31,2020'),
+  targetDate: new Date('Apr 21,2021'),
 });
-
-let intervalId = null;
-intervalId = setInterval(checkTheTime, 1000);
-function checkTheTime() {
-  timer.updateTime();
-  spanDays.textContent = pad(timer.days);
-  spanHours.textContent = pad(timer.hours);
-  spanMins.textContent = pad(timer.mins);
-  spanSecs.textContent = pad(timer.secs);
-}
-
-function pad(value) {
-  return String(value).padStart(2, 0);
-}
