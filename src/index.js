@@ -24,7 +24,7 @@ class CountdownTimer {
   _leftTime() {
     const time = this.targetDate - Date.now();
 
-    time > 0 ? this._calculateTime(time) : this._stopTimer();
+    time > 0 ? this._calculateTime(time) : this.stopTimer();
   }
 
   _calculateTime(time) {
@@ -53,7 +53,6 @@ class CountdownTimer {
 
   stopTimer() {
     clearInterval(this.intervalId);
-    console.log(this.intervalId);
   }
 
   pad(value) {
